@@ -17,6 +17,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     app.Map("/api")
         .Get<GetContactsQuery>("/contacts", GetContacts)
         .Get<GetContactByIdQuery>("/contacts/{id}", GetContactById)
-        .Post<CreateContactCommand>("/contacts", CreateContact);
+        .Post<CreateContactCommand>("/contacts", CreateContact)
+        .Use();
 }
 ```
