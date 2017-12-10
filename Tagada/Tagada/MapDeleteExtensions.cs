@@ -13,6 +13,8 @@ namespace Tagada
                 {
                     var result = function();
                     await response.WriteJsonAsync(result);
+
+                    tagadaBuilder.ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = result });
                 });
             }
 
@@ -59,6 +61,8 @@ namespace Tagada
 
                     var result = function(command);
                     await response.WriteJsonAsync(result);
+
+                    tagadaBuilder.ExecuteAfterRoute(new TagadaRoute { Path = path, Input = command, Result = result });
                 });
             }
 
