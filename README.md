@@ -22,6 +22,7 @@ public void ConfigureServices(IServiceCollection services)
 public void Configure(IApplicationBuilder app)
 {
     app.Map("/api")
+        .Get("/hello", () => "Hello world!")
         .Get<GetContactsQuery>("/contacts", GetContacts)
         .Get<GetContactByIdQuery>("/contacts/{id}", GetContactById)
         .Post<CreateContactCommand>("/contacts", CreateContact)
