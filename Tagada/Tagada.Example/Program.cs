@@ -21,7 +21,7 @@ namespace Tagada.Example
                     s.AddSwaggerGen(c =>
                     {
                         c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
-                        c.DocumentFilter<TagadaDocumentExtensions>();
+                        c.GenerateTagadaSwaggerDoc();
                     });
                 })
                 .Configure(app =>
