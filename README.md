@@ -2,7 +2,7 @@
 
 **Be careful, this library is not production-ready yet.**
 
-Tagada is a lightweight framework to create a .NET Web API without effort. And of course it tastes good.
+Tagada is a lightweight functional framework to create a .NET Core Web API without effort. And of course it tastes good.
 
 > For those who dream to make an ASP.NET Core Web API in one line of code
 
@@ -85,7 +85,7 @@ public class CreateContactCommand
 }
 ```
 
-### EventStore in a single line of code
+### Storing Events in a single line of code
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -103,3 +103,18 @@ public void Configure(IApplicationBuilder app)
         .Use();
 }
 ```
+
+## Roadmap
+
+### Short term
+
+* Fully featured HTTP methods
+* Fully featured Swagger generation
+* Cache Reflection methods (on `TQuery`, `TCommand` and `TResult`)
+* Benchmark Tagada VS traditional approach
+
+### Long term
+
+* Offer a way to detect API endpoints for frontend developers
+* Add Realtime methods `On()`, `OnConnect()`, `OnDisconnect()` and `OnReconnect()` (if possible)
+* Add Reactive / Observable methods (if possible)
