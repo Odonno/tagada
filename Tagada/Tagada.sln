@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tagada", "Tagada\Tagada.csproj", "{A5C75CCE-5490-4DB3-B5E5-C47642906994}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tagada", "Tagada\Tagada.csproj", "{A5C75CCE-5490-4DB3-B5E5-C47642906994}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tagada.Example", "Tagada.Example\Tagada.Example.csproj", "{7B2E4728-979A-499E-834D-4EB02B4AAE54}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCore.Example", "NetCore.Example\NetCore.Example.csproj", "{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{A5C75CCE-5490-4DB3-B5E5-C47642906994}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5C75CCE-5490-4DB3-B5E5-C47642906994}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5C75CCE-5490-4DB3-B5E5-C47642906994}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B2E4728-979A-499E-834D-4EB02B4AAE54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B2E4728-979A-499E-834D-4EB02B4AAE54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B2E4728-979A-499E-834D-4EB02B4AAE54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B2E4728-979A-499E-834D-4EB02B4AAE54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

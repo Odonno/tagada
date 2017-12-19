@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Tagada.Swagger;
 
 namespace Tagada
 {
@@ -12,6 +15,9 @@ namespace Tagada
         private PathString _pathMatch;
         private List<Action<RouteBuilder>> _routeBuilderActions = new List<Action<RouteBuilder>>();
         private List<Action<TagadaRoute>> _afterEachActions = new List<Action<TagadaRoute>>();
+        private List<SwaggerOperationFunc> _swaggerOperationFuncs = new List<SwaggerOperationFunc>();
+
+        internal string TopPath => _pathMatch.Value;
 
         internal TagadaBuilder(IApplicationBuilder app, PathString pathMatch)
         {
@@ -60,6 +66,23 @@ namespace Tagada
             {
                 action(tagadaRoute);
             }
+        }
+
+        internal void AddSwaggerOperationFunc(string path, SwaggerOperationMethod method, Func<ISchemaRegistry, Operation> addSwaggerOperation)
+        {
+            _swaggerOperationFuncs.Add(new SwaggerOperationFunc
+            {
+                Path = TopPath + path,
+                Method = method,
+                AddSwaggerOperation = addSwaggerOperation
+            });
+        }
+
+        internal void AddSwagger()
+        {
+            TagadaDocumentExtensions.SetSwaggerOperations(_swaggerOperationFuncs);
+
+            _app.UseSwagger();
         }
     }
 }

@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Routing;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Tagada.Swagger;
 
 namespace Tagada
 {
     public static class MapGetExtensions
     {
-        public static TagadaBuilder Get(this TagadaBuilder tagadaBuilder, string path, Func<object> function)
+        public static TagadaBuilder Get<TResult>(this TagadaBuilder tagadaBuilder, string path, Func<TResult> function)
         {
             void addRoute(RouteBuilder routeBuilder)
             {
@@ -18,7 +23,37 @@ namespace Tagada
                 });
             }
 
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = tagadaBuilder.TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Get",
+                    Tags = new List<string> { operationName },
+                    Produces = new List<string>
+                    {
+                        "text/plain",
+                        "application/json",
+                        "text/json"
+                    },
+                    Responses = new Dictionary<string, Response>
+                    {
+                        {
+                            "200",
+                            new Response
+                            {
+                                Description = "Success",
+                                Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
+                            }
+                        }
+                    }
+                };
+            }
+
             tagadaBuilder.AddRouteAction(addRoute);
+            tagadaBuilder.AddSwaggerOperationFunc(path, SwaggerOperationMethod.Get, addSwaggerOperation);
 
             return tagadaBuilder;
         }
@@ -66,9 +101,91 @@ namespace Tagada
                 });
             }
 
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = tagadaBuilder.TopPath.Trim('/');
+                var operationSplittedNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
+                string operationName = operationSplittedNames[0];
+
+                var queryType = typeof(TQuery);
+                var queryProperties = queryType.GetProperties();
+
+                var pathParameters = operationSplittedNames
+                    .Where(n => n.StartsWith("{") && n.EndsWith("}"))
+                    .Select(n => n.Substring(1, n.Length - 2));
+
+                var pathProperties = queryProperties.Where(property =>
+                {
+                    string propertyNameToLower = property.Name.ToLower();
+                    return pathParameters.Any(rp => rp == propertyNameToLower);
+                });
+
+                var operationParameters = queryProperties.Select(property =>
+                {
+                    var propertyTypeSchema = schemaRegistry.GetOrRegister(property.PropertyType);
+
+                    if (pathProperties.Contains(property))
+                    {
+                        return new NonBodyParameter
+                        {
+                            Name = property.Name.LowerCapitalize(),
+                            In = "path",
+                            Required = true,
+                            Type = propertyTypeSchema.Type,
+                            Format = propertyTypeSchema.Format
+                        };
+                    }
+
+                    return new NonBodyParameter
+                    {
+                        Name = property.Name.LowerCapitalize(),
+                        In = "query",
+                        Required = false,
+                        Type = propertyTypeSchema.Type,
+                        Format = propertyTypeSchema.Format
+                    };
+                });
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() +
+                        string.Join("", operationSplittedNames.Select(n => GetOperationPartName(n))) +
+                        "Get",
+                    Tags = new List<string> { operationName },
+                    Produces = new List<string>
+                    {
+                        "text/plain",
+                        "application/json",
+                        "text/json"
+                    },
+                    Parameters = operationParameters.Cast<IParameter>().ToList(),
+                    Responses = new Dictionary<string, Response>
+                    {
+                        {
+                            "200",
+                            new Response
+                            {
+                                Description = "Success",
+                                Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
+                            }
+                        }
+                    }
+                };
+            }
+
             tagadaBuilder.AddRouteAction(addRoute);
+            tagadaBuilder.AddSwaggerOperationFunc(path, SwaggerOperationMethod.Get, addSwaggerOperation);
 
             return tagadaBuilder;
+        }
+
+        private static string GetOperationPartName(string n)
+        {
+            if (n.StartsWith("{") && n.EndsWith("}"))
+            {
+                return "By" + n.Substring(1, n.Length - 2).Capitalize();
+            }
+            return n.Capitalize();
         }
     }
 }
