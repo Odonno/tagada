@@ -9,11 +9,13 @@ Tagada is a lightweight framework to create a .NET Web API without effort. And o
 ## Features
 
 * Add routes based on HTTP methods `GET`, `POST`, `PUT`, `DELETE`
-* Add routes based on generic input (and possibly output) `<TQuery>`, `<TQuery, TResult>`, `<TCommand>`, `<TCommand, TResult>`
+* Add routes based on generic input and output `<TQuery>`, `<TQuery, TResult>`, `<TCommand>`, `<TCommand, TResult>`
 * Execute code `AfterEach()` or `AfterEach<T>()`
 * Add swagger documentation
 
 ## Get started
+
+### A simple Hello World
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -25,10 +27,79 @@ public void Configure(IApplicationBuilder app)
 {
     app.Map("/api")
         .Get("/hello", () => "Hello world!")
+        .Use();
+}
+```
+
+### Add Swagger documentation
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddRouting();
+
+    services.AddSwaggerGen(c =>
+    {
+        c.GenerateTagadaSwaggerDoc();
+    });
+}
+
+public void Configure(IApplicationBuilder app)
+{
+    app.Map("/api")
+        .Get("/hello", () => "Hello world!")
+        .AddSwagger()
+        .Use();
+}
+```
+
+### CQRS-ready
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddRouting();
+}
+
+public void Configure(IApplicationBuilder app)
+{
+    app.Map("/api")
         .Get<GetContactsQuery>("/contacts", GetContacts)
         .Get<GetContactByIdQuery>("/contacts/{id}", GetContactById)
         .Post<CreateContactCommand>("/contacts", CreateContact)
-        .AddSwagger()
+        .Use();
+}
+```
+
+```csharp
+public class GetContactsQuery { }
+
+public class GetContactByIdQuery
+{
+    public int Id { get; set; }
+}
+
+public class CreateContactCommand
+{
+    public string Name { get; set; }
+}
+```
+
+### EventStore in a single line of code
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddRouting();
+}
+
+public void Configure(IApplicationBuilder app)
+{
+    app.Map("/api")
+        .Get<GetContactsQuery>("/contacts", GetContacts)
+        .Get<GetContactByIdQuery>("/contacts/{id}", GetContactById)
+        .Post<CreateContactCommand>("/contacts", CreateContact)
+        .AfterEach(route => Events.Add(route))
         .Use();
 }
 ```
