@@ -108,6 +108,7 @@ public void Configure(IApplicationBuilder app)
 
 ### Short term
 
+* Separate in 2 packages : `Tagada` and `Tagada.Swagger`
 * Fully featured HTTP methods
 * Fully featured Swagger generation
 * Cache Reflection methods (on `TQuery`, `TCommand` and `TResult`)

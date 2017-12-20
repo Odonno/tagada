@@ -16,6 +16,7 @@ namespace Tagada
         private List<Action<RouteBuilder>> _routeBuilderActions = new List<Action<RouteBuilder>>();
         private List<Action<TagadaRoute>> _afterEachActions = new List<Action<TagadaRoute>>();
         private List<SwaggerOperationFunc> _swaggerOperationFuncs = new List<SwaggerOperationFunc>();
+        private bool _useSwagger = false;
 
         internal string TopPath => _pathMatch.Value;
 
@@ -47,6 +48,11 @@ namespace Tagada
 
         internal void CreateRoutes()
         {
+            if (_useSwagger)
+            {
+                _app.UseSwagger();
+            }
+
             _app.Map(_pathMatch, subApp =>
             {
                 var routeBuilder = new RouteBuilder(subApp);
@@ -81,8 +87,7 @@ namespace Tagada
         internal void AddSwagger()
         {
             TagadaDocumentExtensions.SetSwaggerOperations(_swaggerOperationFuncs);
-
-            _app.UseSwagger();
+            _useSwagger = true;
         }
     }
 }
