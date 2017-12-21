@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <PackageId>Tagada.Swagger</PackageId>
+    <Version>0.1.0-alpha</Version>
+    <Authors>David Bottiau</Authors>
+    <Description>For those who dream to make an ASP.NET Core Web API in one line of code - Swagger documentation</Description>
+    <Company />
+    <PackageProjectUrl>https://github.com/Odonno/tagada</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Odonno/tagada</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
