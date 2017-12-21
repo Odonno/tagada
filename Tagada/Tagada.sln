@@ -5,9 +5,15 @@ VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tagada", "Tagada\Tagada.csproj", "{A5C75CCE-5490-4DB3-B5E5-C47642906994}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tagada.Example", "Tagada.Example\Tagada.Example.csproj", "{7B2E4728-979A-499E-834D-4EB02B4AAE54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tagada.Example", "Tagada.Example\Tagada.Example.csproj", "{7B2E4728-979A-499E-834D-4EB02B4AAE54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCore.Example", "NetCore.Example\NetCore.Example.csproj", "{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCore.Example", "NetCore.Example\NetCore.Example.csproj", "{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tagada.Swagger", "Tagada.Swagger\Tagada.Swagger.csproj", "{D6F50FED-C891-4C0F-9C50-A73D639A3B07}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{F0FADC6B-70FF-43CB-BE01-ADA5F4BF71F8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{BD63B1AE-B69F-482E-A315-111E6B06F35D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,9 +33,19 @@ Global
 		{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6F50FED-C891-4C0F-9C50-A73D639A3B07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6F50FED-C891-4C0F-9C50-A73D639A3B07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6F50FED-C891-4C0F-9C50-A73D639A3B07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6F50FED-C891-4C0F-9C50-A73D639A3B07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A5C75CCE-5490-4DB3-B5E5-C47642906994} = {BD63B1AE-B69F-482E-A315-111E6B06F35D}
+		{7B2E4728-979A-499E-834D-4EB02B4AAE54} = {F0FADC6B-70FF-43CB-BE01-ADA5F4BF71F8}
+		{7E4EA7A2-C5CC-4A2A-8E5A-826537B4EA90} = {F0FADC6B-70FF-43CB-BE01-ADA5F4BF71F8}
+		{D6F50FED-C891-4C0F-9C50-A73D639A3B07} = {BD63B1AE-B69F-482E-A315-111E6B06F35D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A333F681-10B0-40CD-8A85-482A1D935EB7}
