@@ -2,6 +2,11 @@
 
 **Be careful, this library is not production-ready yet.**
 
+| Package        | NuGet                                                                                                         |
+|----------------|---------------------------------------------------------------------------------------------------------------|
+| Tagada         | [![NuGet](https://img.shields.io/nuget/v/Tagada.svg)](https://www.nuget.org/packages/Tagada/)                 |
+| Tagada.Swagger | [![NuGet](https://img.shields.io/nuget/v/Tagada.Swagger.svg)](https://www.nuget.org/packages/Tagada.Swagger/) |
+
 Tagada is a lightweight functional framework to create a .NET Core Web API without effort. And of course it tastes good.
 
 > For those who dream to make an ASP.NET Core Web API in one line of code
