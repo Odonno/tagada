@@ -1,4 +1,4 @@
-# Tagada
+# <span style="margin-bottom: -5px;"><img src="https://github.com/Odonno/tagada/blob/master/Images/tagada.png?raw=true" width="30" height="30" /></span> Tagada
 
 **Be careful, this library is not production-ready yet.**
 
