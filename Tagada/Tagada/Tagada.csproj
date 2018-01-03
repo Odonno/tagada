@@ -9,6 +9,7 @@
     <Company />
     <PackageProjectUrl>https://github.com/Odonno/tagada</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Odonno/tagada</RepositoryUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/Odonno/tagada/master/Images/tagada.png?token=AFxcy2-A6cQdWmnXllbX5_VF0eWjCmWEks5aVnOxwA%3D%3D</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
