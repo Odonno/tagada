@@ -10,6 +10,9 @@ namespace Tagada
 {
     public partial interface ITagadaBuilder
     {
+        ITagadaBuilder BeforeEach(Action<TagadaRoute> action);
+        ITagadaBuilder BeforeEach<TQueryOrCommand>(Action<TagadaRoute> action);
+
         ITagadaBuilder Get<TResult>(string path, Func<TResult> function);
         ITagadaBuilder Get<TQuery>(string path, Func<TQuery, object> function) where TQuery : class, new();
         ITagadaBuilder Get<TQuery, TResult>(string path, Func<TQuery, TResult> function) where TQuery : class, new();
@@ -39,6 +42,7 @@ namespace Tagada
     {
         private PathString _pathMatch;
         private List<Action<RouteBuilder>> _routeBuilderActions = new List<Action<RouteBuilder>>();
+        private List<Action<TagadaRoute>> _beforeEachActions = new List<Action<TagadaRoute>>();
         private List<Action<TagadaRoute>> _afterEachActions = new List<Action<TagadaRoute>>();
 
         protected IApplicationBuilder App { get; set; }
@@ -55,6 +59,13 @@ namespace Tagada
             _routeBuilderActions.Add(addRouteAction);
         }
 
+        internal void ExecuteBeforeRoute(TagadaRoute tagadaRoute)
+        {
+            foreach (var action in _beforeEachActions)
+            {
+                action(tagadaRoute);
+            }
+        }
         internal void ExecuteAfterRoute(TagadaRoute tagadaRoute)
         {
             foreach (var action in _afterEachActions)
@@ -63,12 +74,31 @@ namespace Tagada
             }
         }
 
+        public ITagadaBuilder BeforeEach(Action<TagadaRoute> action)
+        {
+            _beforeEachActions.Add(action);
+            return this;
+        }
+        public ITagadaBuilder BeforeEach<TQueryOrCommand>(Action<TagadaRoute> action)
+        {
+            _beforeEachActions.Add((tagadaRoute) =>
+            {
+                if (tagadaRoute.Input is TQueryOrCommand queryOrCommand)
+                {
+                    action.Invoke(tagadaRoute);
+                }
+            });
+            return this;
+        }
+
         public virtual ITagadaBuilder Get<TResult>(string path, Func<TResult> function)
         {
             void addRoute(RouteBuilder routeBuilder)
             {
                 routeBuilder.MapGet(path.TrimStart('/'), async (request, response, routeData) =>
                 {
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+
                     var result = function();
                     await response.WriteJsonAsync(result);
 
@@ -115,6 +145,8 @@ namespace Tagada
                         }
                     }
 
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = query });
+
                     var result = function(query);
                     await response.WriteJsonAsync(result);
 
@@ -133,6 +165,7 @@ namespace Tagada
             {
                 routeBuilder.MapPost(path.TrimStart('/'), async (request, response, routeData) =>
                 {
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
                     action();
                     ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = null });
                 });
@@ -148,6 +181,8 @@ namespace Tagada
             {
                 routeBuilder.MapPost(path.TrimStart('/'), async (request, response, routeData) =>
                 {
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+
                     var result = function();
                     await response.WriteJsonAsync(result);
 
@@ -185,6 +220,8 @@ namespace Tagada
                         }
                     }
 
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = command });
+
                     var result = function(command);
                     await response.WriteJsonAsync(result);
 
@@ -203,6 +240,7 @@ namespace Tagada
             {
                 routeBuilder.MapPut(path.TrimStart('/'), async (request, response, routeData) =>
                 {
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
                     action();
                     ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = null });
                 });
@@ -218,6 +256,8 @@ namespace Tagada
             {
                 routeBuilder.MapPut(path.TrimStart('/'), async (request, response, routeData) =>
                 {
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+
                     var result = function();
                     await response.WriteJsonAsync(result);
 
@@ -255,6 +295,8 @@ namespace Tagada
                         }
                     }
 
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = command });
+
                     var result = function(command);
                     await response.WriteJsonAsync(result);
 
@@ -273,6 +315,7 @@ namespace Tagada
             {
                 routeBuilder.MapDelete(path.TrimStart('/'), async (request, response, routeData) =>
                 {
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
                     action();
                     ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = null });
                 });
@@ -288,6 +331,8 @@ namespace Tagada
             {
                 routeBuilder.MapDelete(path.TrimStart('/'), async (request, response, routeData) =>
                 {
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+
                     var result = function();
                     await response.WriteJsonAsync(result);
 
@@ -333,6 +378,8 @@ namespace Tagada
                             commandProperty.SetValue(command, copiedValue);
                         }
                     }
+
+                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = command });
 
                     var result = function(command);
                     await response.WriteJsonAsync(result);

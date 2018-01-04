@@ -15,6 +15,7 @@ Tagada is a lightweight functional framework to create a .NET Core Web API witho
 
 * Add routes based on HTTP methods `GET`, `POST`, `PUT`, `DELETE`
 * Add routes based on generic input and output `<TQuery>`, `<TQuery, TResult>`, `<TCommand>`, `<TCommand, TResult>`
+* Execute code `BeforeEach()` or `BeforeEach<T>()`
 * Execute code `AfterEach()` or `AfterEach<T>()`
 * Add swagger documentation
 
