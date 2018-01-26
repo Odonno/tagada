@@ -109,18 +109,3 @@ public void Configure(IApplicationBuilder app)
         .Use();
 }
 ```
-
-## Roadmap
-
-### Short term
-
-* Fully featured HTTP methods
-* Fully featured Swagger generation
-* Cache Reflection methods (on `TQuery`, `TCommand` and `TResult`)
-* Benchmark Tagada VS traditional approach
-
-### Long term
-
-* Offer a way to detect API endpoints for frontend developers
-* Add Realtime methods `On()`, `OnConnect()`, `OnDisconnect()` and `OnReconnect()` (if possible)
-* Add Reactive / Observable methods (if possible)
