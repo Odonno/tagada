@@ -37,6 +37,7 @@ public void Configure(IApplicationBuilder app)
 }
 ```
 
+
 ### Add Swagger documentation
 
 ```csharp
@@ -109,3 +110,11 @@ public void Configure(IApplicationBuilder app)
         .Use();
 }
 ```
+
+## Resources
+
+List of tools / articles that inspired me to write this library:
+
+* https://www.strathweb.com/2017/01/building-microservices-with-asp-net-core-without-mvc/
+* https://github.com/filipw/aspnetcore-api-samples/blob/master/01%20Lightweight%20API%20(no%20MVC)/LightweightApi/Program.cs
+* http://www.koderdojo.com/blog/asp-net-core-routing-and-routebuilder-mapget-for-calculating-a-factorial
