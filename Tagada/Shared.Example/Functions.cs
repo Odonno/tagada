@@ -45,5 +45,29 @@ namespace Shared.Example
 
             return newContact;
         }
+
+        public static Contact UpdateContact(UpdateContactCommand command)
+        {
+            var existingContact = Contacts.FirstOrDefault(c => c.Id == command.Id);
+            if (existingContact != null)
+            {
+                existingContact.Name = command.Name;
+                return existingContact;
+            }
+
+            return null;
+        }
+
+        public static bool DeleteContact(DeleteContactCommand command)
+        {
+            var existingContact = Contacts.FirstOrDefault(c => c.Id == command.Id);
+            if (existingContact != null)
+            {
+                Contacts.Remove(existingContact);
+                return true;
+            }
+
+            return false;
+        }
     }
 }

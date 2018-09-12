@@ -37,5 +37,22 @@ namespace NetCore.Example.Controllers
 
             return CreateContact(command);
         }
+
+        [HttpPut]
+        public Contact Put([FromBody] UpdateContactCommand command)
+        {
+            QueriesOrCommands.Add(nameof(UpdateContactCommand));
+
+            return UpdateContact(command);
+        }
+
+        [HttpDelete("{id}")]
+        public bool Delete(int id)
+        {
+            QueriesOrCommands.Add(nameof(DeleteContactCommand));
+
+            var command = new DeleteContactCommand { Id = id };
+            return DeleteContact(command);
+        }
     }
 }

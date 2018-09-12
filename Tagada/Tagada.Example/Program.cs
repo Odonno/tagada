@@ -31,6 +31,8 @@ namespace Tagada.Example
                         .Get<GetContactsQuery>("/contacts", GetContacts)
                         .Get<GetContactByIdQuery>("/contacts/{id}", GetContactById)
                         .Post<CreateContactCommand>("/contacts", CreateContact)
+                        .Put<UpdateContactCommand>("/contacts", UpdateContact)
+                        .Delete<DeleteContactCommand, bool>("/contacts/{id}", DeleteContact)
                         .Get("/events", () => QueriesOrCommands)
                         .Get("/count", () => GetContactsQueryCount)
                         .AfterEach(routeResult => QueriesOrCommands.Add(routeResult.Input?.GetType().Name ?? routeResult.Path))
