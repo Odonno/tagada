@@ -10,8 +10,8 @@ namespace Tagada
 {
     public partial interface ITagadaBuilder
     {
-        ITagadaBuilder BeforeEach(Action<TagadaRoute> action);
-        ITagadaBuilder BeforeEach<TQueryOrCommand>(Action<TagadaRoute> action);
+        ITagadaBuilder BeforeEach(Action<TagadaRouteResult> action);
+        ITagadaBuilder BeforeEach<TQueryOrCommand>(Action<TagadaRouteResult> action);
 
         ITagadaBuilder Get<TResult>(string path, Func<TResult> function);
         ITagadaBuilder Get<TQuery>(string path, Func<TQuery, object> function) where TQuery : class, new();
@@ -32,8 +32,8 @@ namespace Tagada
         ITagadaBuilder Delete<TCommand>(string path, Func<TCommand, object> function) where TCommand : class, new();
         ITagadaBuilder Delete<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new();
 
-        ITagadaBuilder AfterEach(Action<TagadaRoute> action);
-        ITagadaBuilder AfterEach<TQueryOrCommand>(Action<TagadaRoute> action);
+        ITagadaBuilder AfterEach(Action<TagadaRouteResult> action);
+        ITagadaBuilder AfterEach<TQueryOrCommand>(Action<TagadaRouteResult> action);
 
         void Use();
     }
@@ -41,9 +41,10 @@ namespace Tagada
     internal class TagadaBuilder : ITagadaBuilder
     {
         private PathString _pathMatch;
-        private List<Action<RouteBuilder>> _routeBuilderActions = new List<Action<RouteBuilder>>();
-        private List<Action<TagadaRoute>> _beforeEachActions = new List<Action<TagadaRoute>>();
-        private List<Action<TagadaRoute>> _afterEachActions = new List<Action<TagadaRoute>>();
+        private readonly List<TagadaRoute> _routes = new List<TagadaRoute>();
+        private readonly List<Action<RouteBuilder>> _routeBuilderActions = new List<Action<RouteBuilder>>();
+        private readonly List<Action<TagadaRouteResult>> _beforeEachActions = new List<Action<TagadaRouteResult>>();
+        private readonly List<Action<TagadaRouteResult>> _afterEachActions = new List<Action<TagadaRouteResult>>();
 
         protected IApplicationBuilder App { get; set; }
         protected string TopPath => _pathMatch.Value;
@@ -59,31 +60,31 @@ namespace Tagada
             _routeBuilderActions.Add(addRouteAction);
         }
 
-        internal void ExecuteBeforeRoute(TagadaRoute tagadaRoute)
+        internal void ExecuteBeforeRoute(TagadaRouteResult tagadaRouteResult)
         {
             foreach (var action in _beforeEachActions)
             {
-                action(tagadaRoute);
+                action(tagadaRouteResult);
             }
         }
-        internal void ExecuteAfterRoute(TagadaRoute tagadaRoute)
+        internal void ExecuteAfterRoute(TagadaRouteResult tagadaRouteResult)
         {
             foreach (var action in _afterEachActions)
             {
-                action(tagadaRoute);
+                action(tagadaRouteResult);
             }
         }
 
-        public ITagadaBuilder BeforeEach(Action<TagadaRoute> action)
+        public ITagadaBuilder BeforeEach(Action<TagadaRouteResult> action)
         {
             _beforeEachActions.Add(action);
             return this;
         }
-        public ITagadaBuilder BeforeEach<TQueryOrCommand>(Action<TagadaRoute> action)
+        public ITagadaBuilder BeforeEach<TQueryOrCommand>(Action<TagadaRouteResult> action)
         {
-            _beforeEachActions.Add((tagadaRoute) =>
+            _beforeEachActions.Add(tagadaRoute =>
             {
-                if (tagadaRoute.Input is TQueryOrCommand queryOrCommand)
+                if (tagadaRoute.Input is TQueryOrCommand)
                 {
                     action.Invoke(tagadaRoute);
                 }
@@ -97,14 +98,22 @@ namespace Tagada
             {
                 routeBuilder.MapGet(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "GET", Path = path, Input = null });
 
                     var result = function();
                     await response.WriteJsonAsync(result);
 
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = result });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "GET", Path = path, Input = null, Result = result });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "GET",
+                Path = path,
+                InputType = null,
+                ResultType = typeof(TResult)
+            });
 
             AddRouteAction(addRoute);
 
@@ -145,14 +154,22 @@ namespace Tagada
                         }
                     }
 
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = query });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "GET", Path = path, Input = query });
 
                     var result = function(query);
                     await response.WriteJsonAsync(result);
 
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = query, Result = result });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "GET", Path = path, Input = query, Result = result });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "GET",
+                Path = path,
+                InputType = typeof(TQuery),
+                ResultType = typeof(TResult)
+            });
 
             AddRouteAction(addRoute);
 
@@ -165,11 +182,19 @@ namespace Tagada
             {
                 routeBuilder.MapPost(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = null });
                     action();
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = null });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = null, Result = null });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "POST",
+                Path = path,
+                InputType = null,
+                ResultType = null
+            });
 
             AddRouteAction(addRoute);
 
@@ -181,14 +206,22 @@ namespace Tagada
             {
                 routeBuilder.MapPost(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = null });
 
                     var result = function();
                     await response.WriteJsonAsync(result);
 
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = result });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = null, Result = result });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "POST",
+                Path = path,
+                InputType = null,
+                ResultType = typeof(TResult)
+            });
 
             AddRouteAction(addRoute);
 
@@ -215,19 +248,25 @@ namespace Tagada
                         {
                             var copiedValue = Convert.ChangeType(routeData.Values[commandProperty.Name], commandProperty.PropertyType);
                             commandProperty.SetValue(command, copiedValue);
-
-                            continue;
                         }
                     }
 
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = command });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = command });
 
                     var result = function(command);
                     await response.WriteJsonAsync(result);
 
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = command, Result = result });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = command, Result = result });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "POST",
+                Path = path,
+                InputType = typeof(TCommand),
+                ResultType = typeof(TResult)
+            });
 
             AddRouteAction(addRoute);
 
@@ -240,11 +279,19 @@ namespace Tagada
             {
                 routeBuilder.MapPut(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = null });
                     action();
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = null });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = null, Result = null });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "PUT",
+                Path = path,
+                InputType = null,
+                ResultType = null
+            });
 
             AddRouteAction(addRoute);
 
@@ -256,14 +303,22 @@ namespace Tagada
             {
                 routeBuilder.MapPut(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = null });
 
                     var result = function();
                     await response.WriteJsonAsync(result);
 
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = result });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = null, Result = result });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "PUT",
+                Path = path,
+                InputType = null,
+                ResultType = typeof(TResult)
+            });
 
             AddRouteAction(addRoute);
 
@@ -290,19 +345,25 @@ namespace Tagada
                         {
                             var copiedValue = Convert.ChangeType(routeData.Values[commandProperty.Name], commandProperty.PropertyType);
                             commandProperty.SetValue(command, copiedValue);
-
-                            continue;
                         }
                     }
 
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = command });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = command });
 
                     var result = function(command);
                     await response.WriteJsonAsync(result);
 
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = command, Result = result });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = command, Result = result });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "PUT",
+                Path = path,
+                InputType = typeof(TCommand),
+                ResultType = typeof(TResult)
+            });
 
             AddRouteAction(addRoute);
 
@@ -315,11 +376,19 @@ namespace Tagada
             {
                 routeBuilder.MapDelete(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = null });
                     action();
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = null });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = null, Result = null });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "DELETE",
+                Path = path,
+                InputType = null,
+                ResultType = null
+            });
 
             AddRouteAction(addRoute);
 
@@ -331,14 +400,22 @@ namespace Tagada
             {
                 routeBuilder.MapDelete(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = null });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = null });
 
                     var result = function();
                     await response.WriteJsonAsync(result);
 
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = null, Result = result });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = null, Result = result });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "DELETE",
+                Path = path,
+                InputType = null,
+                ResultType = typeof(TResult)
+            });
 
             AddRouteAction(addRoute);
 
@@ -379,30 +456,38 @@ namespace Tagada
                         }
                     }
 
-                    ExecuteBeforeRoute(new TagadaRoute { Path = path, Input = command });
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = command });
 
                     var result = function(command);
                     await response.WriteJsonAsync(result);
 
-                    ExecuteAfterRoute(new TagadaRoute { Path = path, Input = command, Result = result });
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = command, Result = result });
                 });
             }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "DELETE",
+                Path = path,
+                InputType = typeof(TCommand),
+                ResultType = typeof(TResult)
+            });
 
             AddRouteAction(addRoute);
 
             return this;
         }
 
-        public ITagadaBuilder AfterEach(Action<TagadaRoute> action)
+        public ITagadaBuilder AfterEach(Action<TagadaRouteResult> action)
         {
             _afterEachActions.Add(action);
             return this;
         }
-        public ITagadaBuilder AfterEach<TQueryOrCommand>(Action<TagadaRoute> action)
+        public ITagadaBuilder AfterEach<TQueryOrCommand>(Action<TagadaRouteResult> action)
         {
-            _afterEachActions.Add((tagadaRoute) =>
+            _afterEachActions.Add(tagadaRoute =>
             {
-                if (tagadaRoute.Input is TQueryOrCommand queryOrCommand)
+                if (tagadaRoute.Input is TQueryOrCommand)
                 {
                     action.Invoke(tagadaRoute);
                 }
