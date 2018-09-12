@@ -84,8 +84,7 @@ namespace Tagada.Swagger
                 var operationSplittedNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
                 string operationName = operationSplittedNames[0];
 
-                var queryType = typeof(TQuery);
-                var queryProperties = queryType.GetProperties();
+                var queryProperties = CachedTypes.GetTypeProperties(typeof(TQuery));
 
                 var pathParameters = operationSplittedNames
                     .Where(n => n.StartsWith("{") && n.EndsWith("}"))
@@ -467,8 +466,7 @@ namespace Tagada.Swagger
                 var operationSplittedNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
                 string operationName = operationSplittedNames[0];
 
-                var commandType = typeof(TCommand);
-                var commandProperties = commandType.GetProperties();
+                var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
 
                 var pathParameters = operationSplittedNames
                     .Where(n => n.StartsWith("{") && n.EndsWith("}"))

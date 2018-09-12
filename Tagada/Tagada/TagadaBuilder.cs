@@ -130,9 +130,8 @@ namespace Tagada
                 routeBuilder.MapGet(path.TrimStart('/'), async (request, response, routeData) =>
                 {
                     var query = new TQuery();
+                    var queryProperties = CachedTypes.GetTypeProperties(typeof(TQuery));
 
-                    var queryType = query.GetType();
-                    var queryProperties = queryType.GetProperties();
                     foreach (var queryProperty in queryProperties)
                     {
                         // copy route params inside query object
@@ -238,9 +237,8 @@ namespace Tagada
                 routeBuilder.MapPost(path.TrimStart('/'), async (request, response, routeData) =>
                 {
                     var command = await request.HttpContext.ReadFromJsonAsync<TCommand>();
+                    var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
 
-                    var commandType = command.GetType();
-                    var commandProperties = commandType.GetProperties();
                     foreach (var commandProperty in commandProperties)
                     {
                         // copy route params inside command object
@@ -335,9 +333,8 @@ namespace Tagada
                 routeBuilder.MapPut(path.TrimStart('/'), async (request, response, routeData) =>
                 {
                     var command = await request.HttpContext.ReadFromJsonAsync<TCommand>();
+                    var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
 
-                    var commandType = command.GetType();
-                    var commandProperties = commandType.GetProperties();
                     foreach (var commandProperty in commandProperties)
                     {
                         // copy route params inside command object
@@ -432,9 +429,8 @@ namespace Tagada
                 routeBuilder.MapDelete(path.TrimStart('/'), async (request, response, routeData) =>
                 {
                     var command = new TCommand();
+                    var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
 
-                    var commandType = command.GetType();
-                    var commandProperties = commandType.GetProperties();
                     foreach (var commandProperty in commandProperties)
                     {
                         // copy route params inside query object
