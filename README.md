@@ -1,5 +1,7 @@
 # <span style="margin-bottom: -5px;"><img src="https://github.com/Odonno/tagada/blob/master/Images/tagada.png?raw=true" width="30" height="30" /></span> Tagada
 
+[![CodeFactor](https://www.codefactor.io/repository/github/odonno/tagada/badge)](https://www.codefactor.io/repository/github/odonno/tagada)
+
 **Be careful, this library is not production-ready yet.**
 
 | Package        | NuGet                                                                                                         |
