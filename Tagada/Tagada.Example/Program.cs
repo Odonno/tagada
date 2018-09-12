@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
-using System.Collections.Generic;
-using System.Linq;
+using Shared.Example;
 using Tagada.Swagger;
+using static Shared.Example.Functions;
 
 namespace Tagada.Example
 {
@@ -33,7 +33,7 @@ namespace Tagada.Example
                         .Post<CreateContactCommand>("/contacts", CreateContact)
                         .Get("/events", () => QueriesOrCommands)
                         .Get("/count", () => GetContactsQueryCount)
-                        .AfterEach(route => QueriesOrCommands.Add(route.Input != null ? route.Input.GetType().Name : route.Path))
+                        .AfterEach(routeResult => QueriesOrCommands.Add(routeResult.Input?.GetType().Name ?? routeResult.Path))
                         .AfterEach<GetContactsQuery>(_ => GetContactsQueryCount++)
                         .AddSwagger()
                         .Use();
@@ -46,66 +46,5 @@ namespace Tagada.Example
                 .Build()
                 .Run();
         }
-
-        public static int GetContactsQueryCount = 0;
-
-        public static List<string> QueriesOrCommands = new List<string>();
-
-        public static List<Contact> Contacts = new List<Contact>
-        {
-            new Contact
-            {
-                Id = 1,
-                Name = "Peter Parker"
-            },
-            new Contact
-            {
-                Id = 2,
-                Name = "Tony Stark"
-            }
-        };
-
-        private static List<Contact> GetContacts(GetContactsQuery query)
-        {
-            return Contacts;
-        }
-
-        private static Contact GetContactById(GetContactByIdQuery query)
-        {
-            return Contacts.FirstOrDefault(c => c.Id == query.Id);
-        }
-
-        private static Contact CreateContact(CreateContactCommand command)
-        {
-            var newContact = new Contact
-            {
-                Id = Contacts.Count + 1,
-                Name = command.Name
-            };
-
-            Contacts.Add(newContact);
-
-            return newContact;
-        }
-    }
-
-    public class GetContactsQuery
-    {
-    }
-
-    public class GetContactByIdQuery
-    {
-        public int Id { get; set; }
-    }
-
-    public class CreateContactCommand
-    {
-        public string Name { get; set; }
-    }
-
-    public class Contact
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
     }
 }

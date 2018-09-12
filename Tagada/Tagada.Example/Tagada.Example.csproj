@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Shared.Example\Shared.Example.csproj" />
     <ProjectReference Include="..\Tagada.Swagger\Tagada.Swagger.csproj" />
     <ProjectReference Include="..\Tagada\Tagada.csproj" />
   </ItemGroup>
