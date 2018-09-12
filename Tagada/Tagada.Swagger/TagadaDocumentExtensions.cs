@@ -34,7 +34,8 @@ namespace Tagada.Swagger
                             Put = GetSwaggerOperation(g, context.SchemaRegistry, SwaggerOperationMethod.Put),
                             Delete = GetSwaggerOperation(g, context.SchemaRegistry, SwaggerOperationMethod.Delete)
                         });
-                    });
+                    })
+                    .OrderBy(x => x.key);
 
                 foreach ((string key, PathItem pathItem) in pathItemsTuple)
                 {

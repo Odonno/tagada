@@ -108,7 +108,7 @@ public void Configure(IApplicationBuilder app)
         .Get<GetContactsQuery>("/contacts", GetContacts)
         .Get<GetContactByIdQuery>("/contacts/{id}", GetContactById)
         .Post<CreateContactCommand>("/contacts", CreateContact)
-        .AfterEach(route => Events.Add(route))
+        .AfterEach(routeResult => Events.Add(routeResult))
         .Use();
 }
 ```
