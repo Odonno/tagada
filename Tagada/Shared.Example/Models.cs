@@ -1,5 +1,11 @@
 ﻿namespace Shared.Example
 {
+    public class AddNumbersQuery
+    {
+        public int Number1 { get; set; }
+        public int Number2 { get; set; }
+    }
+
     public class GetContactsQuery
     {
     }

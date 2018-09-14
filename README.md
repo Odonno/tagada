@@ -16,7 +16,7 @@ Tagada is a lightweight functional framework to create a .NET Core Web API witho
 ## Features
 
 * Add routes based on HTTP methods `GET`, `POST`, `PUT`, `DELETE`
-* Add routes based on generic input and output `<TQuery>`, `<TQuery, TResult>`, `<TCommand>`, `<TCommand, TResult>`
+* Add routes based on generic input and output `<TQuery, TResult>` or `<TCommand, TResult>`
 * Execute code `BeforeEach()` or `BeforeEach<T>()`
 * Execute code `AfterEach()` or `AfterEach<T>()`
 * Add swagger documentation
@@ -73,9 +73,9 @@ public void ConfigureServices(IServiceCollection services)
 public void Configure(IApplicationBuilder app)
 {
     app.Map("/api")
-        .Get<GetContactsQuery>("/contacts", GetContacts)
-        .Get<GetContactByIdQuery>("/contacts/{id}", GetContactById)
-        .Post<CreateContactCommand>("/contacts", CreateContact)
+        .Get("/contacts", GetContacts)
+        .Get("/contacts/{id}", GetContactById)
+        .Post("/contacts", CreateContact)
         .Use();
 }
 ```
@@ -105,9 +105,9 @@ public void ConfigureServices(IServiceCollection services)
 public void Configure(IApplicationBuilder app)
 {
     app.Map("/api")
-        .Get<GetContactsQuery>("/contacts", GetContacts)
-        .Get<GetContactByIdQuery>("/contacts/{id}", GetContactById)
-        .Post<CreateContactCommand>("/contacts", CreateContact)
+        .Get("/contacts", GetContacts)
+        .Get("/contacts/{id}", GetContactById)
+        .Post("/contacts", CreateContact)
         .AfterEach(routeResult => Events.Add(routeResult))
         .Use();
 }

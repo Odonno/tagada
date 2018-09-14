@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Shared.Example
@@ -23,17 +24,12 @@ namespace Shared.Example
             }
         };
 
-        public static List<Contact> GetContacts(GetContactsQuery query)
-        {
-            return Contacts;
-        }
+        public static Func<GetContactsQuery, List<Contact>> GetContacts = _ => Contacts;
 
-        public static Contact GetContactById(GetContactByIdQuery query)
-        {
-            return Contacts.FirstOrDefault(c => c.Id == query.Id);
-        }
+        public static Func<GetContactByIdQuery, Contact> GetContactById = 
+            query => Contacts.FirstOrDefault(c => c.Id == query.Id);
 
-        public static Contact CreateContact(CreateContactCommand command)
+        public static Func<CreateContactCommand, Contact> CreateContact = command =>
         {
             var newContact = new Contact
             {
@@ -44,9 +40,9 @@ namespace Shared.Example
             Contacts.Add(newContact);
 
             return newContact;
-        }
+        };
 
-        public static Contact UpdateContact(UpdateContactCommand command)
+        public static Func<UpdateContactCommand, Contact> UpdateContact = command =>
         {
             var existingContact = Contacts.FirstOrDefault(c => c.Id == command.Id);
             if (existingContact != null)
@@ -56,9 +52,9 @@ namespace Shared.Example
             }
 
             return null;
-        }
+        };
 
-        public static bool DeleteContact(DeleteContactCommand command)
+        public static Func<DeleteContactCommand, bool> DeleteContact = command =>
         {
             var existingContact = Contacts.FirstOrDefault(c => c.Id == command.Id);
             if (existingContact != null)
@@ -68,6 +64,6 @@ namespace Shared.Example
             }
 
             return false;
-        }
+        };
     }
 }

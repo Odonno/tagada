@@ -14,22 +14,18 @@ namespace Tagada
         ITagadaBuilder BeforeEach<TQueryOrCommand>(Action<TagadaRouteResult> action);
 
         ITagadaBuilder Get<TResult>(string path, Func<TResult> function);
-        ITagadaBuilder Get<TQuery>(string path, Func<TQuery, object> function) where TQuery : class, new();
         ITagadaBuilder Get<TQuery, TResult>(string path, Func<TQuery, TResult> function) where TQuery : class, new();
 
         ITagadaBuilder Post(string path, Action action);
         ITagadaBuilder Post<TResult>(string path, Func<TResult> function);
-        ITagadaBuilder Post<TCommand>(string path, Func<TCommand, object> function) where TCommand : class, new();
         ITagadaBuilder Post<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new();
 
         ITagadaBuilder Put(string path, Action action);
         ITagadaBuilder Put<TResult>(string path, Func<TResult> function);
-        ITagadaBuilder Put<TCommand>(string path, Func<TCommand, object> function) where TCommand : class, new();
         ITagadaBuilder Put<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new();
 
         ITagadaBuilder Delete(string path, Action action);
         ITagadaBuilder Delete<TResult>(string path, Func<TResult> function);
-        ITagadaBuilder Delete<TCommand>(string path, Func<TCommand, object> function) where TCommand : class, new();
         ITagadaBuilder Delete<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new();
 
         ITagadaBuilder AfterEach(Action<TagadaRouteResult> action);
@@ -118,10 +114,6 @@ namespace Tagada
             AddRouteAction(addRoute);
 
             return this;
-        }
-        public virtual ITagadaBuilder Get<TQuery>(string path, Func<TQuery, object> function) where TQuery : class, new()
-        {
-            return Get<TQuery, object>(path, function);
         }
         public virtual ITagadaBuilder Get<TQuery, TResult>(string path, Func<TQuery, TResult> function) where TQuery : class, new()
         {
@@ -226,10 +218,6 @@ namespace Tagada
 
             return this;
         }
-        public virtual ITagadaBuilder Post<TCommand>(string path, Func<TCommand, object> function) where TCommand : class, new()
-        {
-            return Post<TCommand, object>(path, function);
-        }
         public virtual ITagadaBuilder Post<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new()
         {
             void addRoute(RouteBuilder routeBuilder)
@@ -322,10 +310,6 @@ namespace Tagada
 
             return this;
         }
-        public virtual ITagadaBuilder Put<TCommand>(string path, Func<TCommand, object> function) where TCommand : class, new()
-        {
-            return Put<TCommand, object>(path, function);
-        }
         public virtual ITagadaBuilder Put<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new()
         {
             void addRoute(RouteBuilder routeBuilder)
@@ -417,10 +401,6 @@ namespace Tagada
             AddRouteAction(addRoute);
 
             return this;
-        }
-        public virtual ITagadaBuilder Delete<TCommand>(string path, Func<TCommand, object> function) where TCommand : class, new()
-        {
-            return Delete<TCommand, object>(path, function);
         }
         public virtual ITagadaBuilder Delete<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new()
         {
