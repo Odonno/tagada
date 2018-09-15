@@ -30,6 +30,15 @@ namespace NetCore.Example.Controllers
             return GetContactById(query);
         }
 
+        [HttpGet("Search")]
+        public IEnumerable<Contact> Search(string value)
+        {
+            QueriesOrCommands.Add(nameof(SearchContactsQuery));
+
+            var query = new SearchContactsQuery { Value = value };
+            return SearchContacts(query);
+        }
+
         [HttpPost]
         public Contact Post([FromBody] CreateContactCommand command)
         {

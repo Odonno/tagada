@@ -15,26 +15,32 @@ namespace Shared.Example
             new Contact
             {
                 Id = 1,
-                Name = "Peter Parker"
+                FirstName = "Peter",
+                LastName = "Parker"
             },
             new Contact
             {
                 Id = 2,
-                Name = "Tony Stark"
+                FirstName = "Tony",
+                LastName = "Stark"
             }
         };
 
-        public static Func<GetContactsQuery, List<Contact>> GetContacts = _ => Contacts;
+        public static Func<GetContactsQuery, IEnumerable<Contact>> GetContacts = _ => Contacts;
 
-        public static Func<GetContactByIdQuery, Contact> GetContactById = 
+        public static Func<GetContactByIdQuery, Contact> GetContactById =
             query => Contacts.FirstOrDefault(c => c.Id == query.Id);
+
+        public static Func<SearchContactsQuery, IEnumerable<Contact>> SearchContacts =
+            query => Contacts.Where(c => c.FullName.ToLower().Contains(query.Value.ToLower()));
 
         public static Func<CreateContactCommand, Contact> CreateContact = command =>
         {
             var newContact = new Contact
             {
                 Id = Contacts.Count + 1,
-                Name = command.Name
+                FirstName = command.FirstName,
+                LastName = command.LastName
             };
 
             Contacts.Add(newContact);
@@ -47,7 +53,8 @@ namespace Shared.Example
             var existingContact = Contacts.FirstOrDefault(c => c.Id == command.Id);
             if (existingContact != null)
             {
-                existingContact.Name = command.Name;
+                existingContact.FirstName = command.FirstName;
+                existingContact.LastName = command.LastName;
                 return existingContact;
             }
 

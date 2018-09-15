@@ -30,6 +30,7 @@ namespace Tagada.Example
                         .Get("/hello", () => "Hello world!")
                         .Get("/add/{number1}/{number2}", (AddNumbersQuery x) => x.Number1 + x.Number2)
                         .Get("/contacts", GetContacts)
+                        .Get("/contacts/search", SearchContacts)
                         .Get("/contacts/{id}", GetContactById)
                         .Post("/contacts", CreateContact)
                         .Put("/contacts", UpdateContact)

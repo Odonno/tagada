@@ -15,15 +15,22 @@
         public int Id { get; set; }
     }
 
+    public class SearchContactsQuery
+    {
+        public string Value { get; set; }
+    }
+
     public class CreateContactCommand
     {
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 
     public class UpdateContactCommand
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 
     public class DeleteContactCommand
@@ -34,6 +41,8 @@
     public class Contact
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string FullName => FirstName + " " + LastName;
     }
 }
