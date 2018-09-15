@@ -10,14 +10,14 @@
     {
     }
 
-    public class GetContactByIdQuery
-    {
-        public int Id { get; set; }
-    }
-
     public class SearchContactsQuery
     {
         public string Value { get; set; }
+    }
+
+    public class GetContactByIdQuery
+    {
+        public int Id { get; set; }
     }
 
     public class CreateContactCommand
@@ -31,6 +31,11 @@
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+    }
+
+    public class DeleteContactBySearchCommand
+    {
+        public string Value { get; set; }
     }
 
     public class DeleteContactCommand

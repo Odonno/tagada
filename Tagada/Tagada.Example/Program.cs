@@ -34,6 +34,7 @@ namespace Tagada.Example
                         .Get("/contacts/{id}", GetContactById)
                         .Post("/contacts", CreateContact)
                         .Put("/contacts", UpdateContact)
+                        .Delete("/contacts/search", DeleteContactBySearch)
                         .Delete("/contacts/{id}", DeleteContact)
                         .Get("/events", () => QueriesOrCommands)
                         .Get("/count", () => GetContactsQueryCount)

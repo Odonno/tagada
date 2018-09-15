@@ -63,5 +63,14 @@ namespace NetCore.Example.Controllers
             var command = new DeleteContactCommand { Id = id };
             return DeleteContact(command);
         }
+
+        [HttpDelete("Search")]
+        public bool DeleteBySearch(string value)
+        {
+            QueriesOrCommands.Add(nameof(DeleteContactBySearchCommand));
+
+            var command = new DeleteContactBySearchCommand { Value = value };
+            return DeleteContactBySearch(command);
+        }
     }
 }

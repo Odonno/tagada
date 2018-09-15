@@ -28,12 +28,12 @@ namespace Shared.Example
 
         public static Func<GetContactsQuery, IEnumerable<Contact>> GetContacts = _ => Contacts;
 
-        public static Func<GetContactByIdQuery, Contact> GetContactById =
-            query => Contacts.FirstOrDefault(c => c.Id == query.Id);
-
         public static Func<SearchContactsQuery, IEnumerable<Contact>> SearchContacts =
             query => Contacts.Where(c => c.FullName.ToLower().Contains(query.Value.ToLower()));
 
+        public static Func<GetContactByIdQuery, Contact> GetContactById =
+            query => Contacts.FirstOrDefault(c => c.Id == query.Id);
+        
         public static Func<CreateContactCommand, Contact> CreateContact = command =>
         {
             var newContact = new Contact
@@ -59,6 +59,19 @@ namespace Shared.Example
             }
 
             return null;
+        };
+
+        public static Func<DeleteContactBySearchCommand, bool> DeleteContactBySearch = command =>
+        {
+            var contactsToRemove = Contacts.Where(c => c.FullName.ToLower().Contains(command.Value.ToLower()));
+
+            if (contactsToRemove.Any())
+            {
+                Contacts.RemoveAll(c => contactsToRemove.Any(c2 => c2.Id == c.Id));
+                return true;
+            }
+
+            return false;
         };
 
         public static Func<DeleteContactCommand, bool> DeleteContact = command =>
