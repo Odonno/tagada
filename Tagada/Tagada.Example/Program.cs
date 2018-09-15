@@ -28,7 +28,8 @@ namespace Tagada.Example
                 {
                     app.Map("/api")
                         .Get("/hello", () => "Hello world!")
-                        .Get("/add/{number1}/{number2}", (AddNumbersQuery x) => x.Number1 + x.Number2)
+                        .Get("/add/{number1}/{number2}", (AddNumbersQuery query) => query.Number1 + query.Number2)
+                        .Get("/calculate/{operator}", Calculate)
                         .Get("/contacts", GetContacts)
                         .Get("/contacts/search", SearchContacts)
                         .Get("/contacts/{id}", GetContactById)

@@ -6,6 +6,13 @@
         public int Number2 { get; set; }
     }
 
+    public class CalculateQuery
+    {
+        public string Operator { get; set; }
+        public int Number1 { get; set; }
+        public int Number2 { get; set; }
+    }
+
     public class GetContactsQuery
     {
     }

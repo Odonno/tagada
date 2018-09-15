@@ -26,6 +26,27 @@ namespace Shared.Example
             }
         };
 
+        public static Func<CalculateQuery, int> Calculate = query =>
+        {
+            if (query.Operator == "plus")
+            {
+                return query.Number1 + query.Number2;
+            }
+            if (query.Operator == "minus")
+            {
+                return query.Number1 - query.Number2;
+            }
+            if (query.Operator == "times")
+            {
+                return query.Number1 * query.Number2;
+            }
+            if (query.Operator == "divide")
+            {
+                return query.Number1 / query.Number2;
+            }
+            return 0;
+        };
+
         public static Func<GetContactsQuery, IEnumerable<Contact>> GetContacts = _ => Contacts;
 
         public static Func<SearchContactsQuery, IEnumerable<Contact>> SearchContacts =
