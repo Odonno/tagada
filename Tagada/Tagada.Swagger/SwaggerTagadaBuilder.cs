@@ -12,6 +12,14 @@ namespace Tagada.Swagger
 {
     internal class SwaggerTagadaBuilder : TagadaBuilder
     {
+        private List<string> _consumesJson = new List<string>
+        {
+            "application/json-patch+json",
+            "application/json",
+            "text/json",
+            "application/*+json"
+        };
+
         private List<string> _producesJson = new List<string>
         {
             "text/plain",
@@ -71,6 +79,19 @@ namespace Tagada.Swagger
                             Format = propertyTypeSchema.Format
                         };
                     });
+                };
+
+        private readonly Func<ISchemaRegistry, Type, IList<IParameter>> _getCommandParameters =
+            (schemaRegistry, commandType) =>
+                new List<IParameter>
+                {
+                    new BodyParameter
+                    {
+                        Name = "command",
+                        In = "body",
+                        Required = false,
+                        Schema = schemaRegistry.GetOrRegister(commandType)
+                    }
                 };
 
         internal List<SwaggerOperationFunc> SwaggerOperationFuncs { get; } = new List<SwaggerOperationFunc>();
@@ -216,24 +237,9 @@ namespace Tagada.Swagger
                 {
                     OperationId = topPath.Capitalize() + operationName.Capitalize() + "Post",
                     Tags = new List<string> { operationName },
-                    Consumes = new List<string>
-                    {
-                        "application/json-patch+json",
-                        "application/json",
-                        "text/json",
-                        "application/*+json"
-                    },
+                    Consumes = _consumesJson,
                     Produces = _producesJson,
-                    Parameters = new List<IParameter>
-                    {
-                        new BodyParameter
-                        {
-                            Name = "command",
-                            In = "body",
-                            Required = false,
-                            Schema = schemaRegistry.GetOrRegister(typeof(TCommand))
-                        }
-                    },
+                    Parameters = _getCommandParameters(schemaRegistry, typeof(TCommand)),
                     Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
@@ -305,24 +311,9 @@ namespace Tagada.Swagger
                 {
                     OperationId = topPath.Capitalize() + operationName.Capitalize() + "Put",
                     Tags = new List<string> { operationName },
-                    Consumes = new List<string>
-                    {
-                        "application/json-patch+json",
-                        "application/json",
-                        "text/json",
-                        "application/*+json"
-                    },
+                    Consumes = _consumesJson,
                     Produces = _producesJson,
-                    Parameters = new List<IParameter>
-                    {
-                        new BodyParameter
-                        {
-                            Name = "command",
-                            In = "body",
-                            Required = false,
-                            Schema = schemaRegistry.GetOrRegister(typeof(TCommand))
-                        }
-                    },
+                    Parameters = _getCommandParameters(schemaRegistry, typeof(TCommand)),
                     Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
