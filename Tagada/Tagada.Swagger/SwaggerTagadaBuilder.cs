@@ -5,6 +5,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using static Tagada.Swagger.OperationExtensions;
 
 namespace Tagada.Swagger
@@ -30,6 +31,46 @@ namespace Tagada.Swagger
                             Schema = schemaRegistry.GetOrRegister(returnType)
                         }
                     }
+                };
+
+        private readonly Func<ISchemaRegistry, PropertyInfo[], string[], IEnumerable<NonBodyParameter>> _getNonBodyParametersFromQueryCommand = 
+            (schemaRegistry, properties, operationSplittedNames) =>
+                {
+                    var pathParameters = operationSplittedNames
+                        .Where(n => n.StartsWith("{") && n.EndsWith("}"))
+                        .Select(n => n.Substring(1, n.Length - 2));
+
+                    var pathProperties = properties.Where(property =>
+                    {
+                        string propertyNameToLower = property.Name.ToLower();
+                        return pathParameters.Any(rp => rp == propertyNameToLower);
+                    });
+
+                    return properties.Select(property =>
+                    {
+                        var propertyTypeSchema = schemaRegistry.GetOrRegister(property.PropertyType);
+
+                        if (pathProperties.Contains(property))
+                        {
+                            return new NonBodyParameter
+                            {
+                                Name = property.Name.LowerCapitalize(),
+                                In = "path",
+                                Required = true,
+                                Type = propertyTypeSchema.Type,
+                                Format = propertyTypeSchema.Format
+                            };
+                        }
+
+                        return new NonBodyParameter
+                        {
+                            Name = property.Name.LowerCapitalize(),
+                            In = "query",
+                            Required = false,
+                            Type = propertyTypeSchema.Type,
+                            Format = propertyTypeSchema.Format
+                        };
+                    });
                 };
 
         internal List<SwaggerOperationFunc> SwaggerOperationFuncs { get; } = new List<SwaggerOperationFunc>();
@@ -93,42 +134,7 @@ namespace Tagada.Swagger
                 string operationName = operationSplittedNames[0];
 
                 var queryProperties = CachedTypes.GetTypeProperties(typeof(TQuery));
-
-                var pathParameters = operationSplittedNames
-                    .Where(n => n.StartsWith("{") && n.EndsWith("}"))
-                    .Select(n => n.Substring(1, n.Length - 2));
-
-                var pathProperties = queryProperties.Where(property =>
-                {
-                    string propertyNameToLower = property.Name.ToLower();
-                    return pathParameters.Any(rp => rp == propertyNameToLower);
-                });
-
-                var operationParameters = queryProperties.Select(property =>
-                {
-                    var propertyTypeSchema = schemaRegistry.GetOrRegister(property.PropertyType);
-
-                    if (pathProperties.Contains(property))
-                    {
-                        return new NonBodyParameter
-                        {
-                            Name = property.Name.LowerCapitalize(),
-                            In = "path",
-                            Required = true,
-                            Type = propertyTypeSchema.Type,
-                            Format = propertyTypeSchema.Format
-                        };
-                    }
-
-                    return new NonBodyParameter
-                    {
-                        Name = property.Name.LowerCapitalize(),
-                        In = "query",
-                        Required = false,
-                        Type = propertyTypeSchema.Type,
-                        Format = propertyTypeSchema.Format
-                    };
-                });
+                var operationParameters = _getNonBodyParametersFromQueryCommand(schemaRegistry, queryProperties, operationSplittedNames);
 
                 return new Operation
                 {
@@ -388,42 +394,7 @@ namespace Tagada.Swagger
                 string operationName = operationSplittedNames[0];
 
                 var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
-
-                var pathParameters = operationSplittedNames
-                    .Where(n => n.StartsWith("{") && n.EndsWith("}"))
-                    .Select(n => n.Substring(1, n.Length - 2));
-
-                var pathProperties = commandProperties.Where(property =>
-                {
-                    string propertyNameToLower = property.Name.ToLower();
-                    return pathParameters.Any(rp => rp == propertyNameToLower);
-                });
-
-                var operationParameters = commandProperties.Select(property =>
-                {
-                    var propertyTypeSchema = schemaRegistry.GetOrRegister(property.PropertyType);
-
-                    if (pathProperties.Contains(property))
-                    {
-                        return new NonBodyParameter
-                        {
-                            Name = property.Name.LowerCapitalize(),
-                            In = "path",
-                            Required = true,
-                            Type = propertyTypeSchema.Type,
-                            Format = propertyTypeSchema.Format
-                        };
-                    }
-
-                    return new NonBodyParameter
-                    {
-                        Name = property.Name.LowerCapitalize(),
-                        In = "query",
-                        Required = false,
-                        Type = propertyTypeSchema.Type,
-                        Format = propertyTypeSchema.Format
-                    };
-                });
+                var operationParameters = _getNonBodyParametersFromQueryCommand(schemaRegistry, commandProperties, operationSplittedNames);
 
                 return new Operation
                 {
