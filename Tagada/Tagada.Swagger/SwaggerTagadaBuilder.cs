@@ -51,12 +51,14 @@ namespace Tagada.Swagger
                 {
                     OperationId = topPath.Capitalize() + operationName.Capitalize() + "Get",
                     Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
                     Produces = new List<string>
                     {
                         "text/plain",
                         "application/json",
                         "text/json"
                     },
+                    Parameters = new List<IParameter>(),
                     Responses = new Dictionary<string, Response>
                     {
                         {
@@ -128,6 +130,7 @@ namespace Tagada.Swagger
                         string.Join("", operationSplittedNames.Select(n => GetOperationPartName(n))) +
                         "Get",
                     Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
                     Produces = new List<string>
                     {
                         "text/plain",
@@ -250,7 +253,7 @@ namespace Tagada.Swagger
                         {
                             Name = "command",
                             In = "body",
-                            Required = true,
+                            Required = false,
                             Schema = schemaRegistry.GetOrRegister(typeof(TCommand))
                         }
                     },
@@ -369,7 +372,7 @@ namespace Tagada.Swagger
                         {
                             Name = "command",
                             In = "body",
-                            Required = true,
+                            Required = false,
                             Schema = schemaRegistry.GetOrRegister(typeof(TCommand))
                         }
                     },
@@ -404,6 +407,7 @@ namespace Tagada.Swagger
                 {
                     OperationId = topPath.Capitalize() + operationName.Capitalize() + "Delete",
                     Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
                     Responses = new Dictionary<string, Response>
                     {
                         {
@@ -433,6 +437,7 @@ namespace Tagada.Swagger
                 {
                     OperationId = topPath.Capitalize() + operationName.Capitalize() + "Delete",
                     Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
                     Produces = new List<string>
                     {
                         "text/plain",
@@ -510,6 +515,7 @@ namespace Tagada.Swagger
                         string.Join("", operationSplittedNames.Select(n => GetOperationPartName(n))) +
                         "Delete",
                     Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
                     Produces = new List<string>
                             {
                                 "text/plain",
