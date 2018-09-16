@@ -11,6 +11,27 @@ namespace Tagada.Swagger
 {
     internal class SwaggerTagadaBuilder : TagadaBuilder
     {
+        private List<string> _producesJson = new List<string>
+        {
+            "text/plain",
+            "application/json",
+            "text/json"
+        };
+
+        private readonly Func<ISchemaRegistry, Type, Dictionary<string, Response>> _createSuccessResponses = 
+            (schemaRegistry, returnType) =>
+                new Dictionary<string, Response>
+                {
+                    {
+                        "200",
+                        new Response
+                        {
+                            Description = "Success",
+                            Schema = schemaRegistry.GetOrRegister(returnType)
+                        }
+                    }
+                };
+
         internal List<SwaggerOperationFunc> SwaggerOperationFuncs { get; } = new List<SwaggerOperationFunc>();
         internal bool UseSwagger { get; set; } = false;
 
@@ -48,28 +69,13 @@ namespace Tagada.Swagger
                 string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
 
                 return new Operation
-                {
+                    {
                     OperationId = topPath.Capitalize() + operationName.Capitalize() + "Get",
                     Tags = new List<string> { operationName },
                     Consumes = new List<string>(),
-                    Produces = new List<string>
-                    {
-                        "text/plain",
-                        "application/json",
-                        "text/json"
-                    },
+                    Produces = _producesJson,
                     Parameters = new List<IParameter>(),
-                    Responses = new Dictionary<string, Response>
-                    {
-                        {
-                            "200",
-                            new Response
-                            {
-                                Description = "Success",
-                                Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
-                            }
-                        }
-                    }
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
             AddSwaggerOperationFunc(path, SwaggerOperationMethod.Get, addSwaggerOperation);
@@ -131,24 +137,9 @@ namespace Tagada.Swagger
                         "Get",
                     Tags = new List<string> { operationName },
                     Consumes = new List<string>(),
-                    Produces = new List<string>
-                    {
-                        "text/plain",
-                        "application/json",
-                        "text/json"
-                    },
+                    Produces = _producesJson,
                     Parameters = operationParameters.Cast<IParameter>().ToList(),
-                    Responses = new Dictionary<string, Response>
-                    {
-                        {
-                            "200",
-                            new Response
-                            {
-                                Description = "Success",
-                                Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
-                            }
-                        }
-                    }
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
             AddSwaggerOperationFunc(path, SwaggerOperationMethod.Get, addSwaggerOperation);
@@ -198,23 +189,8 @@ namespace Tagada.Swagger
                 {
                     OperationId = topPath.Capitalize() + operationName.Capitalize() + "Post",
                     Tags = new List<string> { operationName },
-                    Produces = new List<string>
-                    {
-                        "text/plain",
-                        "application/json",
-                        "text/json"
-                    },
-                    Responses = new Dictionary<string, Response>
-                    {
-                        {
-                            "200",
-                            new Response
-                            {
-                                Description = "Success",
-                                Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
-                            }
-                        }
-                    }
+                    Produces = _producesJson,
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
             AddSwaggerOperationFunc(path, SwaggerOperationMethod.Post, addSwaggerOperation);
@@ -241,12 +217,7 @@ namespace Tagada.Swagger
                         "text/json",
                         "application/*+json"
                     },
-                    Produces = new List<string>
-                    {
-                        "text/plain",
-                        "application/json",
-                        "text/json"
-                    },
+                    Produces = _producesJson,
                     Parameters = new List<IParameter>
                     {
                         new BodyParameter
@@ -257,17 +228,7 @@ namespace Tagada.Swagger
                             Schema = schemaRegistry.GetOrRegister(typeof(TCommand))
                         }
                     },
-                    Responses = new Dictionary<string, Response>
-                    {
-                        {
-                            "200",
-                            new Response
-                            {
-                                Description = "Success",
-                                Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
-                            }
-                        }
-                    }
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
             AddSwaggerOperationFunc(path, SwaggerOperationMethod.Post, addSwaggerOperation);
@@ -317,23 +278,8 @@ namespace Tagada.Swagger
                 {
                     OperationId = topPath.Capitalize() + operationName.Capitalize() + "Put",
                     Tags = new List<string> { operationName },
-                    Produces = new List<string>
-                    {
-                        "text/plain",
-                        "application/json",
-                        "text/json"
-                    },
-                    Responses = new Dictionary<string, Response>
-                    {
-                        {
-                            "200",
-                            new Response
-                            {
-                                Description = "Success",
-                                Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
-                            }
-                        }
-                    }
+                    Produces = _producesJson,
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
             AddSwaggerOperationFunc(path, SwaggerOperationMethod.Put, addSwaggerOperation);
@@ -360,12 +306,7 @@ namespace Tagada.Swagger
                         "text/json",
                         "application/*+json"
                     },
-                    Produces = new List<string>
-                    {
-                        "text/plain",
-                        "application/json",
-                        "text/json"
-                    },
+                    Produces = _producesJson,
                     Parameters = new List<IParameter>
                     {
                         new BodyParameter
@@ -376,17 +317,7 @@ namespace Tagada.Swagger
                             Schema = schemaRegistry.GetOrRegister(typeof(TCommand))
                         }
                     },
-                    Responses = new Dictionary<string, Response>
-                    {
-                        {
-                            "200",
-                            new Response
-                            {
-                                Description = "Success",
-                                Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
-                            }
-                        }
-                    }
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
             AddSwaggerOperationFunc(path, SwaggerOperationMethod.Put, addSwaggerOperation);
@@ -438,23 +369,8 @@ namespace Tagada.Swagger
                     OperationId = topPath.Capitalize() + operationName.Capitalize() + "Delete",
                     Tags = new List<string> { operationName },
                     Consumes = new List<string>(),
-                    Produces = new List<string>
-                    {
-                        "text/plain",
-                        "application/json",
-                        "text/json"
-                    },
-                    Responses = new Dictionary<string, Response>
-                    {
-                        {
-                            "200",
-                            new Response
-                            {
-                                Description = "Success",
-                                Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
-                            }
-                        }
-                    }
+                    Produces = _producesJson,
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
             AddSwaggerOperationFunc(path, SwaggerOperationMethod.Delete, addSwaggerOperation);
@@ -516,24 +432,9 @@ namespace Tagada.Swagger
                         "Delete",
                     Tags = new List<string> { operationName },
                     Consumes = new List<string>(),
-                    Produces = new List<string>
-                            {
-                                "text/plain",
-                                "application/json",
-                                "text/json"
-                            },
+                    Produces = _producesJson,
                     Parameters = operationParameters.Cast<IParameter>().ToList(),
-                    Responses = new Dictionary<string, Response>
-                            {
-                                {
-                                    "200",
-                                    new Response
-                                    {
-                                        Description = "Success",
-                                        Schema = schemaRegistry.GetOrRegister(function.Method.ReturnType)
-                                    }
-                                }
-                            }
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
                 };
             }
             AddSwaggerOperationFunc(path, SwaggerOperationMethod.Delete, addSwaggerOperation);
