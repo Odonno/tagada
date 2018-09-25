@@ -2,8 +2,6 @@
 
 [![CodeFactor](https://www.codefactor.io/repository/github/odonno/tagada/badge)](https://www.codefactor.io/repository/github/odonno/tagada)
 
-**Be careful, this library is not production-ready yet.**
-
 | Package        | NuGet                                                                                                         |
 |----------------|---------------------------------------------------------------------------------------------------------------|
 | Tagada         | [![NuGet](https://img.shields.io/nuget/v/Tagada.svg)](https://www.nuget.org/packages/Tagada/)                 |
@@ -38,7 +36,6 @@ public void Configure(IApplicationBuilder app)
         .Use();
 }
 ```
-
 
 ### Add Swagger documentation
 
