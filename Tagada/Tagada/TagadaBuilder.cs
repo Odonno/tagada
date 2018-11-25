@@ -17,14 +17,17 @@ namespace Tagada
         ITagadaBuilder Get<TQuery, TResult>(string path, Func<TQuery, TResult> function) where TQuery : class, new();
 
         ITagadaBuilder Post(string path, Action action);
+        ITagadaBuilder Post<TCommand>(string path, Action<TCommand> action) where TCommand : class, new();
         ITagadaBuilder Post<TResult>(string path, Func<TResult> function);
         ITagadaBuilder Post<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new();
 
         ITagadaBuilder Put(string path, Action action);
+        ITagadaBuilder Put<TCommand>(string path, Action<TCommand> action) where TCommand : class, new();
         ITagadaBuilder Put<TResult>(string path, Func<TResult> function);
         ITagadaBuilder Put<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new();
 
         ITagadaBuilder Delete(string path, Action action);
+        ITagadaBuilder Delete<TCommand>(string path, Action<TCommand> action) where TCommand : class, new();
         ITagadaBuilder Delete<TResult>(string path, Func<TResult> function);
         ITagadaBuilder Delete<TCommand, TResult>(string path, Func<TCommand, TResult> function) where TCommand : class, new();
 
@@ -191,6 +194,43 @@ namespace Tagada
 
             return this;
         }
+        public virtual ITagadaBuilder Post<TCommand>(string path, Action<TCommand> action) where TCommand : class, new()
+        {
+            void addRoute(RouteBuilder routeBuilder)
+            {
+                routeBuilder.MapPost(path.TrimStart('/'), async (request, response, routeData) =>
+                {
+                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>();
+                    var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
+
+                    foreach (var commandProperty in commandProperties)
+                    {
+                        // copy route params inside command object
+                        if (routeData.Values.ContainsKey(commandProperty.Name))
+                        {
+                            var copiedValue = Convert.ChangeType(routeData.Values[commandProperty.Name], commandProperty.PropertyType);
+                            commandProperty.SetValue(command, copiedValue);
+                        }
+                    }
+
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = command });
+                    action(command);
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = command, Result = null });
+                });
+            }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "POST",
+                Path = path,
+                InputType = typeof(TCommand),
+                ResultType = null
+            });
+
+            AddRouteAction(addRoute);
+
+            return this;
+        }
         public virtual ITagadaBuilder Post<TResult>(string path, Func<TResult> function)
         {
             void addRoute(RouteBuilder routeBuilder)
@@ -283,6 +323,43 @@ namespace Tagada
 
             return this;
         }
+        public virtual ITagadaBuilder Put<TCommand>(string path, Action<TCommand> action) where TCommand : class, new()
+        {
+            void addRoute(RouteBuilder routeBuilder)
+            {
+                routeBuilder.MapPut(path.TrimStart('/'), async (request, response, routeData) =>
+                {
+                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>();
+                    var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
+
+                    foreach (var commandProperty in commandProperties)
+                    {
+                        // copy route params inside command object
+                        if (routeData.Values.ContainsKey(commandProperty.Name))
+                        {
+                            var copiedValue = Convert.ChangeType(routeData.Values[commandProperty.Name], commandProperty.PropertyType);
+                            commandProperty.SetValue(command, copiedValue);
+                        }
+                    }
+
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = command });
+                    action(command);
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = command, Result = null });
+                });
+            }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "PUT",
+                Path = path,
+                InputType = typeof(TCommand),
+                ResultType = null
+            });
+
+            AddRouteAction(addRoute);
+
+            return this;
+        }
         public virtual ITagadaBuilder Put<TResult>(string path, Func<TResult> function)
         {
             void addRoute(RouteBuilder routeBuilder)
@@ -368,6 +445,54 @@ namespace Tagada
                 HttpVerb = "DELETE",
                 Path = path,
                 InputType = null,
+                ResultType = null
+            });
+
+            AddRouteAction(addRoute);
+
+            return this;
+        }
+        public virtual ITagadaBuilder Delete<TCommand>(string path, Action<TCommand> action) where TCommand : class, new()
+        {
+            void addRoute(RouteBuilder routeBuilder)
+            {
+                routeBuilder.MapDelete(path.TrimStart('/'), async (request, response, routeData) =>
+                {
+                    var command = new TCommand();
+                    var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
+
+                    foreach (var commandProperty in commandProperties)
+                    {
+                        // copy route params inside query object
+                        if (routeData.Values.ContainsKey(commandProperty.Name))
+                        {
+                            var copiedValue = Convert.ChangeType(routeData.Values[commandProperty.Name], commandProperty.PropertyType);
+                            commandProperty.SetValue(command, copiedValue);
+
+                            continue;
+                        }
+
+                        // copy query params inside query object
+                        if (request.Query.ContainsKey(commandProperty.Name))
+                        {
+                            var stringValues = request.Query[commandProperty.Name];
+
+                            var copiedValue = Convert.ChangeType(stringValues[0], commandProperty.PropertyType);
+                            commandProperty.SetValue(command, copiedValue);
+                        }
+                    }
+
+                    ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = command });
+                    action(command);
+                    ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = command, Result = null });
+                });
+            }
+
+            _routes.Add(new TagadaRoute
+            {
+                HttpVerb = "DELETE",
+                Path = path,
+                InputType = typeof(TCommand),
                 ResultType = null
             });
 
