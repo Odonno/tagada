@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
@@ -111,14 +112,14 @@ namespace Tagada.Swagger
             });
         }
 
-        public override void Use()
+        public override void Use(JsonSerializer serializer = null)
         {
             if (UseSwagger)
             {
                 App.UseSwagger();
             }
 
-            base.Use();
+            base.Use(serializer);
         }
 
         public override ITagadaBuilder Get<TResult>(string path, Func<TResult> function)

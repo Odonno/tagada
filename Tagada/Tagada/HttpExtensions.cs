@@ -11,9 +11,7 @@ namespace Tagada
 {
     internal static class HttpExtensions
     {
-        private static readonly JsonSerializer Serializer = new JsonSerializer();
-
-        internal static Task WriteJsonAsync<T>(this HttpResponse response, T obj)
+        internal static Task WriteJsonAsync<T>(this HttpResponse response, JsonSerializer serializer, T obj)
         {
             return Task.Run(() =>
             {
@@ -26,18 +24,18 @@ namespace Tagada
                         jsonWriter.CloseOutput = false;
                         jsonWriter.AutoCompleteOnClose = false;
 
-                        Serializer.Serialize(jsonWriter, obj);
+                        serializer.Serialize(jsonWriter, obj);
                     }
                 }
             });
         }
 
-        internal static async Task<T> ReadFromJsonAsync<T>(this HttpContext httpContext)
+        internal static async Task<T> ReadFromJsonAsync<T>(this HttpContext httpContext, JsonSerializer serializer)
         {
             using (var streamReader = new StreamReader(httpContext.Request.Body))
             using (var jsonTextReader = new JsonTextReader(streamReader))
             {
-                var obj = Serializer.Deserialize<T>(jsonTextReader);
+                var obj = serializer.Deserialize<T>(jsonTextReader);
                 var results = new List<ValidationResult>();
 
                 if (Validator.TryValidateObject(obj, new ValidationContext(obj), results))
@@ -46,7 +44,7 @@ namespace Tagada
                 }
 
                 httpContext.Response.StatusCode = 400;
-                await httpContext.Response.WriteJsonAsync(results);
+                await httpContext.Response.WriteJsonAsync(serializer, results);
 
                 return default(T);
             }

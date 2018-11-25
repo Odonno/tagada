@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 [assembly: InternalsVisibleTo("Tagada.Swagger")]
 namespace Tagada
@@ -34,12 +36,13 @@ namespace Tagada
         ITagadaBuilder AfterEach(Action<TagadaRouteResult> action);
         ITagadaBuilder AfterEach<TQueryOrCommand>(Action<TagadaRouteResult> action);
 
-        void Use();
+        void Use(JsonSerializer serializer = null);
     }
 
     internal class TagadaBuilder : ITagadaBuilder
     {
         private PathString _pathMatch;
+        private JsonSerializer _serializer;
         private readonly List<TagadaRoute> _routes = new List<TagadaRoute>();
         private readonly List<Action<RouteBuilder>> _routeBuilderActions = new List<Action<RouteBuilder>>();
         private readonly List<Action<TagadaRouteResult>> _beforeEachActions = new List<Action<TagadaRouteResult>>();
@@ -100,7 +103,7 @@ namespace Tagada
                     ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "GET", Path = path, Input = null });
 
                     var result = function();
-                    await response.WriteJsonAsync(result);
+                    await response.WriteJsonAsync(_serializer, result);
 
                     ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "GET", Path = path, Input = null, Result = result });
                 });
@@ -151,7 +154,7 @@ namespace Tagada
                     ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "GET", Path = path, Input = query });
 
                     var result = function(query);
-                    await response.WriteJsonAsync(result);
+                    await response.WriteJsonAsync(_serializer, result);
 
                     ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "GET", Path = path, Input = query, Result = result });
                 });
@@ -200,7 +203,7 @@ namespace Tagada
             {
                 routeBuilder.MapPost(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>();
+                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>(_serializer);
                     var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
 
                     foreach (var commandProperty in commandProperties)
@@ -240,7 +243,7 @@ namespace Tagada
                     ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = null });
 
                     var result = function();
-                    await response.WriteJsonAsync(result);
+                    await response.WriteJsonAsync(_serializer, result);
 
                     ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = null, Result = result });
                 });
@@ -264,7 +267,7 @@ namespace Tagada
             {
                 routeBuilder.MapPost(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>();
+                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>(_serializer);
                     var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
 
                     foreach (var commandProperty in commandProperties)
@@ -280,7 +283,7 @@ namespace Tagada
                     ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = command });
 
                     var result = function(command);
-                    await response.WriteJsonAsync(result);
+                    await response.WriteJsonAsync(_serializer, result);
 
                     ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "POST", Path = path, Input = command, Result = result });
                 });
@@ -329,7 +332,7 @@ namespace Tagada
             {
                 routeBuilder.MapPut(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>();
+                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>(_serializer);
                     var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
 
                     foreach (var commandProperty in commandProperties)
@@ -369,7 +372,7 @@ namespace Tagada
                     ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = null });
 
                     var result = function();
-                    await response.WriteJsonAsync(result);
+                    await response.WriteJsonAsync(_serializer, result);
 
                     ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = null, Result = result });
                 });
@@ -393,7 +396,7 @@ namespace Tagada
             {
                 routeBuilder.MapPut(path.TrimStart('/'), async (request, response, routeData) =>
                 {
-                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>();
+                    var command = await request.HttpContext.ReadFromJsonAsync<TCommand>(_serializer);
                     var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
 
                     foreach (var commandProperty in commandProperties)
@@ -409,7 +412,7 @@ namespace Tagada
                     ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = command });
 
                     var result = function(command);
-                    await response.WriteJsonAsync(result);
+                    await response.WriteJsonAsync(_serializer, result);
 
                     ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "PUT", Path = path, Input = command, Result = result });
                 });
@@ -509,7 +512,7 @@ namespace Tagada
                     ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = null });
 
                     var result = function();
-                    await response.WriteJsonAsync(result);
+                    await response.WriteJsonAsync(_serializer, result);
 
                     ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = null, Result = result });
                 });
@@ -560,7 +563,7 @@ namespace Tagada
                     ExecuteBeforeRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = command });
 
                     var result = function(command);
-                    await response.WriteJsonAsync(result);
+                    await response.WriteJsonAsync(_serializer, result);
 
                     ExecuteAfterRoute(new TagadaRouteResult { HttpVerb = "DELETE", Path = path, Input = command, Result = result });
                 });
@@ -596,8 +599,20 @@ namespace Tagada
             return this;
         }
 
-        public virtual void Use()
+        public virtual void Use(JsonSerializer serializer = null)
         {
+            if (serializer == null)
+            {
+                _serializer = new JsonSerializer
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+            }
+            else
+            {
+                _serializer = serializer;
+            }
+
             App.Map(_pathMatch, subApp =>
             {
                 var routeBuilder = new RouteBuilder(subApp);
