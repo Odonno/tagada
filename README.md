@@ -91,7 +91,7 @@ public class CreateContactCommand
 }
 ```
 
-### Storing Events in a single line of code
+### Storing Commands in a single line of code
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -105,7 +105,7 @@ public void Configure(IApplicationBuilder app)
         .Get("/contacts", GetContacts)
         .Get("/contacts/{id}", GetContactById)
         .Post("/contacts", CreateContact)
-        .AfterEach(routeResult => Events.Add(routeResult))
+        .AfterEach(routeResult => QueriesOrCommands.Add(routeResult.Input))
         .Use();
 }
 ```
