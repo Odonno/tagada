@@ -134,6 +134,43 @@ public void Configure(IApplicationBuilder app)
 public static Func<GetContactsQuery, IEnumerable<Contact>> GetContacts = _ => Contacts;
 ```
 
+### Writing commands
+
+* Command without result
+
+```csharp
+.Post<Command>("/command", Dispatch)
+```
+
+```csharp
+public static void Dispatch(Command command)
+{
+    Commands.Add(command);
+}
+```
+
+* Command with a result
+
+```csharp
+.Post("/contacts", CreateContact)
+```
+
+```csharp
+public static Func<CreateContactCommand, Contact> CreateContact = command =>
+{
+    var newContact = new Contact
+    {
+        Id = Contacts.Count + 1,
+        FirstName = command.FirstName,
+        LastName = command.LastName
+    };
+
+    Contacts.Add(newContact);
+
+    return newContact;
+};
+```
+
 ## Resources
 
 List of tools / articles that inspired me to write this library:
