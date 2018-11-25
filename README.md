@@ -110,6 +110,30 @@ public void Configure(IApplicationBuilder app)
 }
 ```
 
+### Writing queries
+
+* Return result without parameters
+
+```csharp
+.Get("/hello", () => "Hello world!")
+```
+
+* Return result from query (extracted from parameters)
+
+```csharp
+.Get("/add/{number1}/{number2}", (AddNumbersQuery query) => query.Number1 + query.Number2)
+```
+
+* Return result from query with a function
+
+```csharp
+.Get("/contacts", GetContacts)
+```
+
+```csharp
+public static Func<GetContactsQuery, IEnumerable<Contact>> GetContacts = _ => Contacts;
+```
+
 ## Resources
 
 List of tools / articles that inspired me to write this library:
