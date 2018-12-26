@@ -1,23 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace Tagada
 {
     public static class CachedTypes
     {
-        private static readonly Dictionary<string, PropertyInfo[]> TypeProperties = new Dictionary<string, PropertyInfo[]>();
+        private static readonly ConcurrentDictionary<string, PropertyInfo[]> TypeProperties = new ConcurrentDictionary<string, PropertyInfo[]>();
 
         public static PropertyInfo[] GetTypeProperties(Type type)
         {
-            if (TypeProperties.ContainsKey(type.FullName))
-            {
-                return TypeProperties[type.FullName];
-            }
-
-            var properties = type.GetProperties();
-            TypeProperties.Add(type.FullName, properties);
-            return properties;
+            return TypeProperties.GetOrAdd(type.FullName, typeFullName => type.GetProperties());
         }
     }
 }
