@@ -2,10 +2,11 @@
 
 [![CodeFactor](https://www.codefactor.io/repository/github/odonno/tagada/badge)](https://www.codefactor.io/repository/github/odonno/tagada)
 
-| Package        | NuGet                                                                                                         |
+| Package        | Versions                                                                                                         |
 |----------------|---------------------------------------------------------------------------------------------------------------|
 | Tagada         | [![NuGet](https://img.shields.io/nuget/v/Tagada.svg)](https://www.nuget.org/packages/Tagada/)                 |
 | Tagada.Swagger | [![NuGet](https://img.shields.io/nuget/v/Tagada.Swagger.svg)](https://www.nuget.org/packages/Tagada.Swagger/) |
+| Visual Studio extension (project templates)  | [![VSMarketplace](https://img.shields.io/vscode-marketplace/v/odonno.tagada-extensions.svg)](https://marketplace.visualstudio.com/items?itemName=odonno.tagada-extensions) |              
 
 Tagada is a lightweight functional framework to create a .NET Core Web API without effort. And of course it tastes good.
 
