@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using static Tagada.Swagger.OperationExtensions;
 
 namespace Tagada.Swagger
@@ -175,6 +176,59 @@ namespace Tagada.Swagger
             return this;
         }
 
+        public override ITagadaBuilder GetAsync<TResult>(string path, Func<Task<TResult>> function)
+        {
+            base.GetAsync(path, function);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Get",
+                    Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
+                    Produces = _producesJson,
+                    Parameters = new List<IParameter>(),
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Get, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder GetAsync<TQuery, TResult>(string path, Func<TQuery, Task<TResult>> function)
+        {
+            base.GetAsync(path, function);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                var operationSplittedNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
+                string operationName = operationSplittedNames[0];
+
+                var queryProperties = CachedTypes.GetTypeProperties(typeof(TQuery));
+                var operationParameters = _getNonBodyParametersFromQueryCommand(schemaRegistry, queryProperties, operationSplittedNames);
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() +
+                        string.Join("", operationSplittedNames.Select(n => GetOperationPartName(n))) +
+                        "Get",
+                    Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
+                    Produces = _producesJson,
+                    Parameters = operationParameters.Cast<IParameter>().ToList(),
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Get, addSwaggerOperation);
+
+            return this;
+        }
+
         public override ITagadaBuilder Post(string path, Action action)
         {
             base.Post(path, action);
@@ -260,6 +314,112 @@ namespace Tagada.Swagger
         public override ITagadaBuilder Post<TCommand, TResult>(string path, Func<TCommand, TResult> function)
         {
             base.Post(path, function);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Post",
+                    Tags = new List<string> { operationName },
+                    Consumes = _consumesJson,
+                    Produces = _producesJson,
+                    Parameters = _getCommandParameters(schemaRegistry, typeof(TCommand)),
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Post, addSwaggerOperation);
+
+            return this;
+        }
+
+        public override ITagadaBuilder PostAsync(string path, Func<Task> action)
+        {
+            base.PostAsync(path, action);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Post",
+                    Tags = new List<string> { operationName },
+                    Responses = new Dictionary<string, Response>
+                    {
+                        {
+                            "200",
+                            new Response
+                            {
+                                Description = "Success"
+                            }
+                        }
+                    }
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Post, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder PostAsync<TCommand>(string path, Func<TCommand, Task> action)
+        {
+            base.PostAsync(path, action);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Post",
+                    Tags = new List<string> { operationName },
+                    Consumes = _consumesJson,
+                    Produces = _producesJson,
+                    Parameters = _getCommandParameters(schemaRegistry, typeof(TCommand)),
+                    Responses = new Dictionary<string, Response>
+                    {
+                        {
+                            "200",
+                            new Response
+                            {
+                                Description = "Success"
+                            }
+                        }
+                    }
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Post, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder PostAsync<TResult>(string path, Func<Task<TResult>> function)
+        {
+            base.PostAsync(path, function);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Post",
+                    Tags = new List<string> { operationName },
+                    Produces = _producesJson,
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Post, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder PostAsync<TCommand, TResult>(string path, Func<TCommand, Task<TResult>> function)
+        {
+            base.PostAsync(path, function);
 
             Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
             {
@@ -387,6 +547,112 @@ namespace Tagada.Swagger
             return this;
         }
 
+        public override ITagadaBuilder PutAsync(string path, Func<Task> action)
+        {
+            base.PutAsync(path, action);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Put",
+                    Tags = new List<string> { operationName },
+                    Responses = new Dictionary<string, Response>
+                    {
+                        {
+                            "200",
+                            new Response
+                            {
+                                Description = "Success"
+                            }
+                        }
+                    }
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Put, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder PutAsync<TCommand>(string path, Func<TCommand, Task> action)
+        {
+            base.PutAsync(path, action);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Put",
+                    Tags = new List<string> { operationName },
+                    Consumes = _consumesJson,
+                    Produces = _producesJson,
+                    Parameters = _getCommandParameters(schemaRegistry, typeof(TCommand)),
+                    Responses = new Dictionary<string, Response>
+                    {
+                        {
+                            "200",
+                            new Response
+                            {
+                                Description = "Success"
+                            }
+                        }
+                    }
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Put, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder PutAsync<TResult>(string path, Func<Task<TResult>> function)
+        {
+            base.PutAsync(path, function);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Put",
+                    Tags = new List<string> { operationName },
+                    Produces = _producesJson,
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Put, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder PutAsync<TCommand, TResult>(string path, Func<TCommand, Task<TResult>> function)
+        {
+            base.PutAsync(path, function);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Put",
+                    Tags = new List<string> { operationName },
+                    Consumes = _consumesJson,
+                    Produces = _producesJson,
+                    Parameters = _getCommandParameters(schemaRegistry, typeof(TCommand)),
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Put, addSwaggerOperation);
+
+            return this;
+        }
+
         public override ITagadaBuilder Delete(string path, Action action)
         {
             base.Delete(path, action);
@@ -480,6 +746,126 @@ namespace Tagada.Swagger
         public override ITagadaBuilder Delete<TCommand, TResult>(string path, Func<TCommand, TResult> function)
         {
             base.Delete(path, function);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                var operationSplittedNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
+                string operationName = operationSplittedNames[0];
+
+                var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
+                var operationParameters = _getNonBodyParametersFromQueryCommand(schemaRegistry, commandProperties, operationSplittedNames);
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() +
+                        string.Join("", operationSplittedNames.Select(n => GetOperationPartName(n))) +
+                        "Delete",
+                    Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
+                    Produces = _producesJson,
+                    Parameters = operationParameters.Cast<IParameter>().ToList(),
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Delete, addSwaggerOperation);
+
+            return this;
+        }
+        
+        public override ITagadaBuilder DeleteAsync(string path, Func<Task> action)
+        {
+            base.DeleteAsync(path, action);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Delete",
+                    Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
+                    Responses = new Dictionary<string, Response>
+                    {
+                        {
+                            "200",
+                            new Response
+                            {
+                                Description = "Success"
+                            }
+                        }
+                    }
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Delete, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder DeleteAsync<TCommand>(string path, Func<TCommand, Task> action)
+        {
+            base.DeleteAsync(path, action);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                var operationSplittedNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
+                string operationName = operationSplittedNames[0];
+
+                var commandProperties = CachedTypes.GetTypeProperties(typeof(TCommand));
+                var operationParameters = _getNonBodyParametersFromQueryCommand(schemaRegistry, commandProperties, operationSplittedNames);
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() +
+                        string.Join("", operationSplittedNames.Select(n => GetOperationPartName(n))) +
+                        "Delete",
+                    Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
+                    Produces = _producesJson,
+                    Parameters = operationParameters.Cast<IParameter>().ToList(),
+                    Responses = new Dictionary<string, Response>
+                    {
+                        {
+                            "200",
+                            new Response
+                            {
+                                Description = "Success"
+                            }
+                        }
+                    }
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Delete, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder DeleteAsync<TResult>(string path, Func<Task<TResult>> function)
+        {
+            base.DeleteAsync(path, function);
+
+            Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
+            {
+                string topPath = TopPath.Trim('/');
+                string operationName = path.Split("/", StringSplitOptions.RemoveEmptyEntries)[0];
+
+                return new Operation
+                {
+                    OperationId = topPath.Capitalize() + operationName.Capitalize() + "Delete",
+                    Tags = new List<string> { operationName },
+                    Consumes = new List<string>(),
+                    Produces = _producesJson,
+                    Responses = _createSuccessResponses(schemaRegistry, function.Method.ReturnType)
+                };
+            }
+            AddSwaggerOperationFunc(path, SwaggerOperationMethod.Delete, addSwaggerOperation);
+
+            return this;
+        }
+        public override ITagadaBuilder DeleteAsync<TCommand, TResult>(string path, Func<TCommand, Task<TResult>> function)
+        {
+            base.DeleteAsync(path, function);
 
             Operation addSwaggerOperation(ISchemaRegistry schemaRegistry)
             {

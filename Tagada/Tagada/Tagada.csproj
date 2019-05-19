@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <PackageId>Tagada</PackageId>
-    <Version>1.2.1</Version>
+    <Version>1.3.0</Version>
     <Authors>David Bottiau</Authors>
     <Description>For those who dream to make an ASP.NET Core Web API in one line of code</Description>
     <Company />
