@@ -52,7 +52,7 @@ namespace Tagada.Swagger
 
                     var pathProperties = properties.Where(property =>
                     {
-                        string propertyNameToLower = property.Name.ToLower();
+                        string propertyNameToLower = property.Name.LowerCapitalize();
                         return pathParameters.Any(rp => rp == propertyNameToLower);
                     });
 
